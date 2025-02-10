@@ -42,7 +42,7 @@
 			<saml:Attribute AttributeName="saml_firstName" AttributeNamespace="https://idp.example.com/attributes">
 				<saml:AttributeValue>user</saml:AttributeValue>
 			</saml:Attribute>
-			<saml:Attribute AttributeName="saml_email" AttributeNamespace="https://idp.example.com/attributes">
+			<saml:Attribute AttributeName="email" AttributeNamespace="https://idp.example.com/attributes">
 				<saml:AttributeValue>engineering</saml:AttributeValue>
 			</saml:Attribute>
 			<saml:Attribute AttributeName="saml_subject" AttributeNamespace="https://idp.example.com/attributes">

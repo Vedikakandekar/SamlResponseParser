@@ -1,13 +1,14 @@
 using Serilog;
 using Services.SamlResponseAuth.Services;
 using Services.SamlResponseAuth.Services.Contracts;
+using Services.SamlResponseAuth.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
-    .WriteTo.Console() 
-    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day) 
+    .WriteTo.Console()
+    .WriteTo.File("logs/log.txt")
     .Enrich.FromLogContext() 
     .CreateLogger();
 
@@ -18,7 +19,12 @@ builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.Configure<SamlXPathSettings>(builder.Configuration.GetSection("SAML"));
+
+
 builder.Services.AddScoped<ISamlAuthService,SamlAuthService>();
+builder.Services.AddScoped<IExceptionMapper,ExceptionMapperService>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -31,6 +37,7 @@ app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 

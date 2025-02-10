@@ -1,0 +1,58 @@
+﻿<samlp:Response ResponseID="_a248d623-ede9-4185-8379-5be532462f99" MajorVersion="1" MinorVersion="1" IssueInstant="2025-01-22T15:19:05Z" Recipient=""
+	xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol">
+	<Signature
+		xmlns="http://www.w3.org/2000/09/xmldsig#">
+		<SignedInfo>
+			<CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+			<SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+			<Reference URI="#_a248d623-ede9-4185-8379-5be532462f99">
+				<Transforms>
+					<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+					<Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+						<InclusiveNamespaces PrefixList="#default code ds kind rw saml samlp typens"
+							xmlns="http://www.w3.org/2001/10/xml-exc-c14n#" />
+					</Transform>
+				</Transforms>
+				<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+				<DigestValue>BaIrV9UensIvuBLBsIlMcKfCNXnDWP3iSfqp5ctSBLw=</DigestValue>
+			</Reference>
+		</SignedInfo>
+		<SignatureValue>JEha5FlnNC90svTeLp020i7gj+U3yfx/qMH6899MV7PRNze5gJyR1ApFGrrls12B77X83SvlEBzIl89TQCoAWRosjlmkbBDM4zCZgwr6uVU8utL64l3OGCbWsbidLLIV38uev+dEYZG5Y+0+VlPsdUdx/3O+hD0gaHKLw8NJajlHST5MFTvCt6du33VVdognqjR/g+ClEt94Ko89IyvDHUfq949Xu5Hxd6RtVBYgsQ78TSkbeNmudDCrfl3QxcZb95IsRardnnH22NDkWiQ1ngjWcrHD72zgJlp0Ddxdg08tTNc5I3Lf0SIdUbQa+V1N5HdsnneHjyUs1O8VQ1CKXw==</SignatureValue>
+		<KeyInfo>
+			<X509Data>
+				<X509Certificate>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</X509Certificate>
+			</X509Data>
+		</KeyInfo>
+	</Signature>
+	<samlp:Status>
+		<samlp:StatusCode Value="samlp:Success" />
+	</samlp:Status>
+	
+<saml:Assertion MajorVersion="1" MinorVersion="1" AssertionID="_d24af587-e4eb-4840-9d5e-27cb12ec2d17" Issuer="SecureAuth" IssueInstant="2025-01-22T15:19:05Z"
+		xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion">
+		<saml:Conditions NotBefore="2025-01-22T14:49:095Z" NotOnOrAfter="2025-01-22T15:49:095Z">
+			<saml:AudienceRestrictionCondition>
+				<saml:Audience>ConnectAndSell</saml:Audience>
+			</saml:AudienceRestrictionCondition>
+		</saml:Conditions>
+		<saml:AuthenticationStatement AuthenticationMethod="urn:oasis:names:tc:SAML:1.0:am:X509-PKI" AuthenticationInstant="2025-01-22T15:19:05Z">
+			<saml:Subject>
+				<saml:NameIdentifier NameQualifier="" Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">jjohnso@Shazam.net</saml:NameIdentifier>
+				<saml:SubjectConfirmation>
+					<saml:ConfirmationMethod>urn:oasis:names:tc:SAML:1.0:cm:bearer</saml:ConfirmationMethod>
+				</saml:SubjectConfirmation>
+			</saml:Subject>
+		</saml:AuthenticationStatement>
+		<saml:AttributeStatement>
+			<saml:Subject>
+				<saml:NameIdentifier NameQualifier="" Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">jjohnso@Shazam.net</saml:NameIdentifier>
+				<saml:SubjectConfirmation>
+					<saml:ConfirmationMethod>urn:oasis:names:tc:SAML:1.0:cm:bearer</saml:ConfirmationMethod>
+				</saml:SubjectConfirmation>
+			</saml:Subject>
+			<saml:Attribute AttributeName="email" AttributeNamespace="">
+				<saml:AttributeValue>jjohnso@Shazam.net</saml:AttributeValue>
+			</saml:Attribute>
+		</saml:AttributeStatement>
+	</saml:Assertion>
+</samlp:Response>
