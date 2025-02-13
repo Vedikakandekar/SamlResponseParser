@@ -2,6 +2,7 @@ using Serilog;
 using Services.SamlResponseAuth.Services;
 using Services.SamlResponseAuth.Services.Contracts;
 using Services.SamlResponseAuth.Utility;
+using Services.SamlResponseAuth.Utility.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +24,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<SamlXPathSettings>(builder.Configuration.GetSection("SAML"));
 
 
-builder.Services.AddScoped<ISamlAuthService,SamlAuthService>();
-builder.Services.AddScoped<IExceptionMapper,ExceptionMapperService>();
+builder.Services.AddSingleton<IExceptionMapper, ExceptionMapperService>();
+builder.Services.AddSingleton<IXmlDocumentLoader, XmlDocumentLoader>();
+builder.Services.AddSingleton<IXmlNamespaceManagerFactory, XmlNamespaceManagerFactory>();
+builder.Services.AddTransient<ISamlAuthService, SamlAuthService>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

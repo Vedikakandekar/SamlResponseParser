@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Xml;
 using Services.SamlResponseAuth.Utility;
 using Microsoft.Extensions.Options;
+using Services.SamlResponseAuth.Utility.Contracts;
 namespace Services.SamlResponseAuth.Services
 {
     public class SamlAuthService : ISamlAuthService
@@ -12,11 +13,25 @@ namespace Services.SamlResponseAuth.Services
         private readonly SamlXPathSettings _samlPathsettings;
 
         private readonly IExceptionMapper _exceptionMapper;
-        public SamlAuthService(IOptions<SamlXPathSettings> samlPathsettings, IExceptionMapper exceptionMapper)
+
+        private readonly IXmlDocumentLoader _xmlDocumentLoader;
+
+        private readonly IXmlNamespaceManagerFactory _xmlNamespaceManagerFactory;
+
+        public SamlAuthService(IOptions<SamlXPathSettings> samlPathsettings, IExceptionMapper exceptionMapper, IXmlDocumentLoader xmlDocumentLoader,
+        IXmlNamespaceManagerFactory xmlNamespaceManagerFactory)
         {
-            _samlPathsettings = samlPathsettings?.Value ?? throw new ArgumentNullException(nameof(samlPathsettings));
-            _exceptionMapper = exceptionMapper ?? throw new ArgumentNullException(nameof(exceptionMapper));
+            _samlPathsettings = samlPathsettings?.Value 
+                                ?? throw new ArgumentNullException(nameof(samlPathsettings));
+            _exceptionMapper = exceptionMapper 
+                                ?? throw new ArgumentNullException(nameof(exceptionMapper));
+            _xmlDocumentLoader = xmlDocumentLoader 
+                                ?? throw new ArgumentNullException(nameof(xmlDocumentLoader));
+
+            _xmlNamespaceManagerFactory = xmlNamespaceManagerFactory 
+                                ?? throw new ArgumentNullException(nameof(xmlNamespaceManagerFactory));
         }
+
         public string? DecodeSaml(string SAMLResponse)
         {
                 if (string.IsNullOrEmpty(SAMLResponse))
@@ -26,24 +41,23 @@ namespace Services.SamlResponseAuth.Services
                 return System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(SAMLResponse));
          
         }
+
         public Subject? ParseSaml(string SamlResponse)
         {
             Console.WriteLine(SamlResponse);
-          
-                XmlDocument xDoc = new XmlDocument();
-                xDoc.LoadXml(SamlResponse);
-                Subject subject = new Subject() { UserAttributes = new Dictionary<string, string>() };
-                if (!SamlResponse.Contains(_samlPathsettings.V1Namespace) && !SamlResponse.Contains(_samlPathsettings.V2Namespace))
+
+            XmlDocument xDoc = _xmlDocumentLoader.LoadXml(SamlResponse);
+
+            Subject subject = new Subject() { UserAttributes = new Dictionary<string, string>() };
+                if (!SamlResponse.Contains(_samlPathsettings.V1Namespace) 
+                    && !SamlResponse.Contains(_samlPathsettings.V2Namespace))
                 {
                     ThrowSamlException(ExceptionCodes.UnprocessableEntity);
                 }
-                XmlNamespaceManager xMan = new XmlNamespaceManager(xDoc.NameTable);
-                xMan.AddNamespace("saml",_samlPathsettings.V1Namespace!);
-                xMan.AddNamespace("saml2",_samlPathsettings.V2Namespace);
-                xMan.AddNamespace("samlp",_samlPathsettings.V1Protocol);
-                xMan.AddNamespace("samlp2",_samlPathsettings.V2Protocol);
+            XmlNamespaceManager xMan = _xmlNamespaceManagerFactory.CreateNamespaceManager(xDoc);
 
-                var status = xDoc.SelectSingleNode(_samlPathsettings.StatusCode, xMan)?.Value;
+
+            var status = xDoc.SelectSingleNode(_samlPathsettings.StatusCode, xMan)?.Value;
                 if (string.IsNullOrEmpty(status))
                 {
                     ThrowSamlException(ExceptionCodes.MissingStatus);
@@ -59,7 +73,13 @@ namespace Services.SamlResponseAuth.Services
                 }
                 subject.NotBefore = xDoc.SelectSingleNode(_samlPathsettings.NotBefore, xMan)?.Value;
                 subject.NotOnOrAfter = xDoc.SelectSingleNode(_samlPathsettings.NotOnOrAfter, xMan)?.Value ?? string.Empty;
-                subject.Issuer = xDoc.SelectSingleNode(_samlPathsettings.V1Issuer, xMan)?.Value ?? xDoc.SelectSingleNode(_samlPathsettings.V2Issuer, xMan)?.InnerText ?? string.Empty;
+                subject.Issuer = xDoc.SelectSingleNode(_samlPathsettings.V1Issuer, xMan)?.Value 
+                               ?? xDoc.SelectSingleNode(_samlPathsettings.V2Issuer, xMan)?.InnerText 
+                               ?? string.Empty;
+                if(string.IsNullOrEmpty(subject.Issuer))
+                {
+                    ThrowSamlException(ExceptionCodes.MissingIssuer);
+                }
                 if (subject.NotBefore == null || subject.NotOnOrAfter == null)
                 {
                     ThrowSamlException(ExceptionCodes.NullConditions);
@@ -70,12 +90,18 @@ namespace Services.SamlResponseAuth.Services
                 {
                     foreach (XmlNode attributeNode in attributeNodes)
                     {
-                        string attributeName = attributeNode.Attributes?[_samlPathsettings.V2AttributeName]?.Value ?? attributeNode.Attributes?[_samlPathsettings.V1AttributeName]?.Value ?? string.Empty;
+                        string attributeName = attributeNode.Attributes?[_samlPathsettings.V2AttributeName]?.Value
+                                               ?? attributeNode.Attributes?[_samlPathsettings.V1AttributeName]?.Value
+                                               ?? string.Empty;
 
-                        string attributeValue = attributeNode.SelectSingleNode(_samlPathsettings.AttributeValue, xMan)?.InnerText ?? string.Empty;
+                        string attributeValue = attributeNode.SelectSingleNode(_samlPathsettings.AttributeValue, xMan)?.InnerText 
+                                                ?? string.Empty;
                         if (!string.IsNullOrEmpty(attributeName) && !string.IsNullOrEmpty(attributeValue))
                         {
-                            if (attributeName ==_samlPathsettings.EmailAttributeName) subject.Email = attributeValue;
+                        if (attributeName == _samlPathsettings.EmailAttributeName)
+                        {
+                            subject.Email = attributeValue;
+                        }
                             subject.UserAttributes[attributeName] = attributeValue;
                         }
                     }
@@ -84,18 +110,19 @@ namespace Services.SamlResponseAuth.Services
                     ThrowSamlException(ExceptionCodes.NullEmail);
                 }
                 return subject;
-            
         }
-
 
         private void ValidateTimestamps(string notBefore, string notOnOrAfter)
         {
             var format = _samlPathsettings.DateFormat;
             var currentTime = DateTimeOffset.UtcNow;
-            var valid = DateTimeOffset.ParseExact(notBefore, format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal) <= currentTime &&
-                        DateTimeOffset.ParseExact(notOnOrAfter, format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal) > currentTime;
-            if (!valid)
+            var valid = DateTimeOffset.ParseExact(notBefore, format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
+                        <= currentTime &&
+                        DateTimeOffset.ParseExact(notOnOrAfter, format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
+                        > currentTime;
+            if (!valid) { 
                 ThrowSamlException(ExceptionCodes.InvalidConditions);
+            }
         }
 
         private void ThrowSamlException(string exceptionName)
