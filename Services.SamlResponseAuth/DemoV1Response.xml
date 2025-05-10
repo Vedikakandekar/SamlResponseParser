@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<samlp:Response
+    xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol"
+    xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion"
+    IssueInstant="2025-01-13T12:00:00Z"
+    MajorVersion="1"
+    MinorVersion="0"
+    Recipient="https://sp.example.com/SAML/SSO"
+    ResponseID="_123456789"
+    InResponseTo="_abcdef123456789">
+
+	
+	<saml:Assertion
+        AssertionID="_987654321"
+        IssueInstant="2025-01-13T12:00:00Z"
+        Issuer="https://idp.example.com"
+        MajorVersion="1"
+        MinorVersion="0">
+
+		
+		<saml:Conditions NotBefore="2025-01-13T12:00:00Z" NotOnOrAfter="2025-01-13T12:30:00Z"/>
+
+		
+		<saml:AuthenticationStatement
+            AuthenticationInstant="2025-01-13T11:55:00Z"
+            AuthenticationMethod="urn:oasis:names:tc:SAML:1.0:am:password">
+			
+			
+			<saml:Subject>
+				<saml:NameIdentifier Format="urn:oasis:names:tc:SAML:1.0:nameid-format:emailAddress">user@example.com</saml:NameIdentifier>			
+				<saml:SubjectConfirmation>			 	
+						<saml:ConfirmationMethod>urn:oasis:names:tc:SAML:1.0:cm:bearer</saml:ConfirmationMethod>					
+				</saml:SubjectConfirmation>
+			</saml:Subject>
+		</saml:AuthenticationStatement>
+
+		
+		<saml:AttributeStatement>
+			<saml:Subject>
+				<saml:NameIdentifier Format="urn:oasis:names:tc:SAML:1.0:nameid-format:emailAddress">user@example.com</saml:NameIdentifier>
+			</saml:Subject>
+			<saml:Attribute AttributeName="saml_firstName" AttributeNamespace="https://idp.example.com/attributes">
+				<saml:AttributeValue>user</saml:AttributeValue>
+			</saml:Attribute>
+			<saml:Attribute AttributeName="email" AttributeNamespace="https://idp.example.com/attributes">
+				<saml:AttributeValue>engineering</saml:AttributeValue>
+			</saml:Attribute>
+			<saml:Attribute AttributeName="saml_subject" AttributeNamespace="https://idp.example.com/attributes">
+				<saml:AttributeValue>subject</saml:AttributeValue>
+			</saml:Attribute>
+		</saml:AttributeStatement>
+
+	</saml:Assertion>
+
+</samlp:Response>
